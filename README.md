@@ -6,19 +6,19 @@ This is a Shiny app to run supervised and unsupervised cell type deconvolution m
 
 [`mrna_meth_decon`](https://hub.docker.com/r/ashwinikrsharma/mrna_meth_decon) is a Docker image which encompasses the following deconvolution algorithms and Shiny along with their dependencies.
 
-- immunedeconv
-- estimate
-- CellMix
-- DeconRNASeq
+immunedeconv\
+estimate\
+CellMix\
+DeconRNASeq\
 
-- EpiDISH
-- EDec
-- medepir
+EpiDISH\
+EDec\
+medepir\
 
-- ica
-- deconica
-- fastICA
-- NMF
+ica\
+deconica\
+fastICA\
+NMF\
 
 ```
 cd ~/
