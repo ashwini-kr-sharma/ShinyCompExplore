@@ -6,24 +6,24 @@ This is a Shiny app to run supervised and unsupervised cell type deconvolution m
 
 [`mrna_meth_decon`](https://hub.docker.com/r/ashwinikrsharma/mrna_meth_decon) is a Docker image which encompasses the following deconvolution algorithms and Shiny along with their dependencies.
 
-immunedeconv\
-estimate\
-CellMix\
-DeconRNASeq\
+(1) immunedeconv\
+(2) estimate\
+(3) CellMix\
+(4) DeconRNASeq
 
-EpiDISH\
-EDec\
-medepir\
+(5) EpiDISH\
+(6) EDec\
+(7) medepir
 
-ica\
-deconica\
-fastICA\
-NMF\
+(8) ica\
+(9) deconica\
+(10) fastICA\
+(11) NMF
 
 ```
 cd ~/
 
-docker pull ashwinikrsharma/mrna_meth_decon
+docker pull ashwinikrsharma/mrna_meth_decon:latest
 
 git clone https://github.com/ashwini-kr-sharma/ShinyCompExplore.git
 
@@ -32,3 +32,9 @@ docker run --rm -it -p 3838:3838 -v ~/ShinyCompExplore:/srv/shiny-server/ ashwin
 # Wait for few seconds for the shiny app to start
 
 ```
+
+Once you see a message `Starting listener on http://[::]:3838`, go to your browser (Chrome, Firefox etc) and type in the address bar `localhost:3838`, wait for some time for the page to load. Now, you should now be able to see the `ShinyCompExplore` app.
+
+__Demo data__ is made available in `~/ShinyCompExplore/data/demo`, that can be used to test the app.
+
+Raise a __Github issue__ in case you face any problems !! 
