@@ -20,7 +20,6 @@ library(ica)
 library(fastICA)
 library(NMF)
 library(CellMix)
-
 library(cowplot)
 library(matrixStats)
 library(nFactors)
@@ -254,7 +253,8 @@ tabPanel(
 #-------------------------------------------------------------------------------
 
 tabPanel(
-  "Deconvolution - Supervised",
+  #"Deconvolution - Supervised",
+  "Deconvolution - Immune cells",
   sidebarPanel(
     pickerInput(
       inputId = "select02",
@@ -348,7 +348,8 @@ tabPanel(
 #-------------------------------------------------------------------------------
     
 tabPanel(
-  "Deconvolution - Unsupervised",
+  #"Deconvolution - Unsupervised",
+  "Optimal k",
   
   sidebarPanel(
     fileInput(
@@ -357,37 +358,38 @@ tabPanel(
       label = h4("Gene expression matrix"),
       accept = c(".csv")
     ),
-    actionButton('reset', 'Reset'),
     
-    tags$hr(),
-    
-    sliderInput(
-      "slider01",
-      label = h4("Select appropriate", em("k")),
-      min = 2,
-      max = 15,
-      step = 1,
-      value = 5
-    ),
-    
-    tags$hr(),
-    
-    pickerInput(
-      inputId = "select03",
-      label = h4("Algorithm type"),
-      choices = list(
-        ICA = c("deconICA-1" = "MT1",
-                "deconICA-2" = "MT14"),
-        
-        NMF = c("ICA-nmf" = "MT2",
-                "snmf" = "MT")
-      ),
-    ),
-    
-    tags$hr(),
-    
-    actionButton("start", "Start deconvolution"),
-  ),
+    # actionButton('reset', 'Reset'),
+    # 
+    # tags$hr(),
+    # 
+    # sliderInput(
+    #   "slider01",
+    #   label = h4("Select appropriate", em("k")),
+    #   min = 2,
+    #   max = 15,
+    #   step = 1,
+    #   value = 5
+    # ),
+    # 
+    # tags$hr(),
+    # 
+    # pickerInput(
+    #   inputId = "select03",
+    #   label = h4("Algorithm type"),
+    #   choices = list(
+    #     ICA = c("deconICA-1" = "MT1",
+    #             "deconICA-2" = "MT14"),
+    #     
+    #     NMF = c("ICA-nmf" = "MT2",
+    #             "snmf" = "MT")
+    #   ),
+    # ),
+    # 
+    # tags$hr(),
+    # 
+    # actionButton("start", "Start deconvolution"),
+  ), #Side bar panel
   
   mainPanel(
     fluidRow(
@@ -498,7 +500,7 @@ tabPanel("Component enrichment",
   ),
   
   mainPanel(fluidRow(
-    plotlyOutput(outputId = "viz4", inline = T)
+    plotOutput(outputId = "viz4")
   )),
 ) # Visualization - Enrichment
 
@@ -761,6 +763,16 @@ observeEvent(input$reset, {
 
 #---------------- RUN PCA for k val selection using Scree plot -----------------
 
+# Waiter waiting
+w_pca <- Waiter$new(html = tagList(
+  tags$strong(h1("Computing optimal k...")),
+  tags$br(),
+  html = spin_pulsar(),
+  tags$br(),
+  tags$strong(h1("Please wait for the results !!")),
+  tags$br()
+))
+
 observeEvent(input$file02, {
   output$screeplot <- renderPlot({
     
@@ -768,8 +780,15 @@ observeEvent(input$file02, {
     if(ncol(mydata)>0)
     {
       mydata = mydata[order(matrixStats::rowMads(as.matrix(mydata)), decreasing = TRUE)[1:min(nrow(mydata), 10000)],]
-      plot_k(mydata) } else {
+      
+      #w_pca$show()
+  
+      plot_k(mydata) 
+      
+      #w_pca$hide()  
+    } else {
         text = c("Your input is empty. Check the separators in your csv file.")
+     
     }
     
     # dat = as.matrix(t(expmat_react2()))
@@ -801,33 +820,33 @@ observeEvent(input$file02, {
 
 #------------------------ Render Cell proportion matrix ------------------------
 
-output$cellpropmat <- DT::renderDT({
-  datatable(
-    expmat_react2(),
-    extensions = 'Buttons',
-    class = "compact",
-    options = list(
-      dom = 'Bfrtip',
-      autoWidth = TRUE,
-      buttons = c('csv', 'excel')
-    )
-  )
-})
+# output$cellpropmat <- DT::renderDT({
+#   datatable(
+#     expmat_react2(),
+#     extensions = 'Buttons',
+#     class = "compact",
+#     options = list(
+#       dom = 'Bfrtip',
+#       autoWidth = TRUE,
+#       buttons = c('csv', 'excel')
+#     )
+#   )
+# })
 
 #------------------------- Render Gene signature matrix ------------------------
 
-output$genesigmat <- DT::renderDT({
-  datatable(
-    expmat_react2(),
-    extensions = 'Buttons',
-    class = "compact",
-    options = list(
-      dom = 'Bfrtip',
-      autoWidth = TRUE,
-      buttons = c('csv', 'excel')
-    )
-  )
-})
+# output$genesigmat <- DT::renderDT({
+#   datatable(
+#     expmat_react2(),
+#     extensions = 'Buttons',
+#     class = "compact",
+#     options = list(
+#       dom = 'Bfrtip',
+#       autoWidth = TRUE,
+#       buttons = c('csv', 'excel')
+#     )
+#   )
+# })
 
 #-------------------------------------------------------------------------------
 # Visualization : Cell proportions: Read sample names/ cell types
@@ -845,6 +864,7 @@ observeEvent(input$file03, {
                     "samplist1",
                     label = "Select samples",
                     choices = colnames(mytable))
+  
   updateSelectInput(session,
                     "celllist1",
                     label = "Select cell types",
@@ -930,36 +950,78 @@ observeEvent(c(inFile3(), input$samplist1, input$celllist1), {
 # Unsupervised deconvolution - Visualization : Enrichment of cell types
 #-------------------------------------------------------------------------------
 
-inFile4 = reactiveVal()
+# inFile4 = reactiveVal()
+# 
+# # Read the gene signature matrix
+# observeEvent(input$file04, {
+#   gsig <- read.csv(input$file04$datapath, row.names = 1)
+#   inFile4(gsig)
+# })
+# 
+# observeEvent(c(inFile4(), input$radio012, input$select1), {
+#   output$viz4 = renderPlot({
+#     req(inFile4())
+#     req(input$radio012)
+#     req(input$select1)
+#     
+#     dat = as.matrix(inFile4())
+#     
+#     if (input$radio012 == "ICA-based") {
+#       datemp = orient_funct(dat)
+#       colnames(datemp) = colnames(dat)
+#       dat = datemp
+#     }
+#     
+#     if (input$select1 == "ALL") {
+#       markerscelltypes = tapply(dbmarkers$geneSymbol, dbmarkers$cellIDcancer, cbind)
+#     } else {
+#       dbmarkers = dbmarkers[dbmarkers$cancerType == input$select1, ]
+#       markerscelltypes = tapply(dbmarkers$geneSymbol, dbmarkers$cellID, cbind)
+#     }
+#     enrichplot(dat, markerscelltypes, showCategory = 10)
+#   })
+# })
 
-# Read the gene signature matrix
-observeEvent(input$file04, {
-  gsig <- read.csv(input$file04$datapath, row.names = 1)
-  inFile4(gsig)
-}, priority = 1000)
+w_enr <- Waiter$new(html = tagList(
+  tags$strong(h1("Enrichment analysis in progress...")),
+  tags$br(),
+  html = spin_pulsar(),
+  tags$br(),
+  tags$strong(h1("Please wait for the results !!")),
+  tags$br()
+))
 
-observeEvent(c(inFile4(), input$radio012, input$select1), {
-  output$viz4 = renderPlot({
-    req(inFile4())
-    req(input$radio012)
-    req(input$select1)
-    
+
+inFile4 = reactive({
+  req(input$file04)
+  read.csv(input$file04$datapath, row.names = 1)
+})
+
+output$viz4 = renderPlot({
+  
+  if(! is.null(inFile4()) ){
     dat = as.matrix(inFile4())
     
-    if (input$radio012 == "ICA-based") {
+    if(input$radio012 == "ICA-based"){
       datemp = orient_funct(dat)
-      colnames(datemp) = colnames(dat)
+      colnames(datemp) =  colnames(dat)
       dat = datemp
     }
-    
-    if (input$select1 == "ALL") {
-      markerscelltypes = tapply(dbmarkers$geneSymbol, dbmarkers$cellIDcancer, cbind)
+    if(input$select1 == "ALL"){
+      markerscelltypes = tapply(dbmarkers$geneSymbol,dbmarkers$cellIDcancer, cbind)
     } else {
-      dbmarkers = dbmarkers[dbmarkers$cancerType == input$select1, ]
-      markerscelltypes = tapply(dbmarkers$geneSymbol, dbmarkers$cellID, cbind)
+      dbmarkers. = dbmarkers[dbmarkers$cancerType == input$select1,]
+      markerscelltypes = tapply(dbmarkers.$geneSymbol,dbmarkers.$cellID, cbind)
     }
+    
+    #w_enr$show()
+    
     enrichplot(dat, markerscelltypes, showCategory = 10)
-  })
+    
+    #w_enr$hide()
+  }
+  
+ 
 })
 
 topgen = reactive({

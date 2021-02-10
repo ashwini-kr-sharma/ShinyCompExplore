@@ -1,3 +1,3 @@
-# DeconCellTypesAPP
+# ShinyCompExplore
 
-Shiny app to analyze outputs from supervised and unsupervised deconvolution methods.
+This is a Shiny app to analyze outputs from supervised and unsupervised deconvolution methods.
