@@ -29,12 +29,15 @@ git clone https://github.com/ashwini-kr-sharma/ShinyCompExplore.git
 
 docker run --rm -it -p 3838:3838 -v ~/ShinyCompExplore:/srv/shiny-server/ ashwinikrsharma/mrna_meth_decon
 
+# Or, for deployment in a Virtual Machine with a public IP
+# docker run -d -p 3838:3838 -v ~/ShinyCompExplore:/srv/shiny-server/ ashwinikrsharma/mrna_meth_decon
+
 # Wait for few seconds for the shiny app to start
 
 ```
 
 Once you see a message `Starting listener on http://[::]:3838`, go to your browser (Chrome, Firefox etc) and type in the address bar `localhost:3838`, wait for some time for the page to load. Now, you should now be able to see the `ShinyCompExplore` app.
 
-__Demo data__ is made available in `~/ShinyCompExplore/data/demo`, that can be used to test the app.
+__Demo data__ is made available inside `~/ShinyCompExplore/data/demo`, that can be used to test the app.
 
-Raise a __Github issue__ in case you face any problems !! 
+Raise a [Github issue](https://github.com/ashwini-kr-sharma/ShinyCompExplore/issues) in case you face any problems !!
