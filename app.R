@@ -1,10 +1,11 @@
 #-------------------------------------------------------------------------------
 # Required packages
 #-------------------------------------------------------------------------------
+
 options(repos = BiocManager::repositories()) 
 
 library(shiny)
-library(httpuv)
+#library(httpuv)
 library(shinythemes)
 library(shinyjs)
 library(pheatmap)
@@ -273,13 +274,13 @@ ui <- fluidPage(
                
                sidebarPanel(
                  
-                 textInput("CBR", label = h4("CIBERSORT.R function"), value = "Enter the path to CIBERSORT.R"),
+                 textInput("CBR", label = h4("CIBERSORT.R file"), value = "~/ShinyCompExplore/data/CIBERSORT.R"),
                  tags$a(href = "https://cibersort.stanford.edu/", "Registration required, download it here !"),
                  tags$h6("NOTE: Only for this workshop, a copy is made available at - /ShinyCompExplore/data/CIBERSORT.R"),tags$b("DO NOT SHARE !!"),
                  
                  tags$hr(),
                  
-                 textInput("LM22", label = h4("LM22 gene signature"), value = "Enter the path to LM22.R"),
+                 textInput("LM22", label = h4("LM22 gene signature file"), value = "~/ShinyCompExplore/data/LM22.txt"),
                  tags$a(href = "https://cibersort.stanford.edu/", "Registration required, download it here !"),
                  tags$h6("NOTE: Only for this workshop, a copy is made available at - /ShinyCompExplore/data/CIBERSORT.R"),tags$b("DO NOT SHARE !!"),
                  
@@ -574,7 +575,7 @@ server <- function(input, output, session) {
   expmat_react1 <- reactiveVal()
   
   observeEvent(input$file01, {
-    mytable <- read.csv(input$file01$datapath, row.names = 1)
+    mytable <- data.frame(fread(input$file01$datapath), row.names = 1)
     rv1$data = mytable
     expmat_react1(mytable)
   })
@@ -759,7 +760,7 @@ server <- function(input, output, session) {
   expmat_react2 <- reactiveVal()
   
   observeEvent(input$file02, {
-    mytable <- read.csv(input$file02$datapath, row.names = 1, header = T)
+    mytable <- data.frame(fread(input$file02$datapath), row.names = 1)
     rv2$data = mytable
     expmat_react2(mytable)
   })
@@ -884,7 +885,7 @@ server <- function(input, output, session) {
   
   # Update the input options based on the .csv file
   observeEvent(input$file03, {
-    mytable <- read.csv(input$file03$datapath, row.names = "cell_type")
+    mytable <- data.frame(fread(input$file03$datapath), row.names = "cell_type")
     mytable <- mytable[, 2:ncol(mytable)]
     
     updateSelectInput(session,
@@ -977,79 +978,83 @@ server <- function(input, output, session) {
   # Unsupervised deconvolution - Visualization : Enrichment of cell types
   #-------------------------------------------------------------------------------
   
-  # inFile4 = reactiveVal()
-  # 
-  # # Read the gene signature matrix
-  # observeEvent(input$file04, {
-  #   gsig <- read.csv(input$file04$datapath, row.names = 1)
-  #   inFile4(gsig)
-  # })
-  # 
-  # observeEvent(c(inFile4(), input$radio012, input$select1), {
-  #   output$viz4 = renderPlot({
-  #     req(inFile4())
-  #     req(input$radio012)
-  #     req(input$select1)
-  #     
-  #     dat = as.matrix(inFile4())
-  #     
-  #     if (input$radio012 == "ICA-based") {
-  #       datemp = orient_funct(dat)
-  #       colnames(datemp) = colnames(dat)
-  #       dat = datemp
-  #     }
-  #     
-  #     if (input$select1 == "ALL") {
-  #       markerscelltypes = tapply(dbmarkers$geneSymbol, dbmarkers$cellIDcancer, cbind)
-  #     } else {
-  #       dbmarkers = dbmarkers[dbmarkers$cancerType == input$select1, ]
-  #       markerscelltypes = tapply(dbmarkers$geneSymbol, dbmarkers$cellID, cbind)
-  #     }
-  #     enrichplot(dat, markerscelltypes, showCategory = 10)
-  #   })
-  # })
+  # w_enr <- Waiter$new(html = tagList(
+  #   tags$strong(h1("Enrichment analysis in progress...")),
+  #   tags$br(),
+  #   html = spin_pulsar(),
+  #   tags$br(),
+  #   tags$strong(h1("Please wait for the results !!")),
+  #   tags$br()
+  # ))
   
-  w_enr <- Waiter$new(html = tagList(
-    tags$strong(h1("Enrichment analysis in progress...")),
-    tags$br(),
-    html = spin_pulsar(),
-    tags$br(),
-    tags$strong(h1("Please wait for the results !!")),
-    tags$br()
-  ))
+  inFile4 = reactiveVal()
   
-  
-  inFile4 = reactive({
-    req(input$file04)
-    read.csv(input$file04$datapath, row.names = 1)
+  # Read the gene signature matrix
+  observeEvent(input$file04, {
+    gsig <- data.frame(fread(input$file04$datapath), row.names = 1)
+    inFile4(gsig)
   })
   
-  output$viz4 = renderPlot({
-    
-    if(! is.null(inFile4()) ){
+  observeEvent(c(inFile4(), input$radio012, input$select1), {
+    output$viz4 = renderPlot({
+      req(inFile4())
+      req(input$radio012)
+      req(input$select1)
+      
       dat = as.matrix(inFile4())
       
-      if(input$radio012 == "ICA-based"){
+      if (input$radio012 == "ICA-based") {
         datemp = orient_funct(dat)
-        colnames(datemp) =  colnames(dat)
+        colnames(datemp) = colnames(dat)
         dat = datemp
       }
-      if(input$select1 == "ALL"){
-        markerscelltypes = tapply(dbmarkers$geneSymbol,dbmarkers$cellIDcancer, cbind)
+      
+      if (input$select1 == "ALL") {
+        markerscelltypes = tapply(dbmarkers$geneSymbol, dbmarkers$cellIDcancer, cbind)
       } else {
-        dbmarkers. = dbmarkers[dbmarkers$cancerType == input$select1,]
-        markerscelltypes = tapply(dbmarkers.$geneSymbol,dbmarkers.$cellID, cbind)
+        dbmarkers = dbmarkers[dbmarkers$cancerType == input$select1, ]
+        markerscelltypes = tapply(dbmarkers$geneSymbol, dbmarkers$cellID, cbind)
       }
       
       #w_enr$show()
-      
       enrichplot(dat, markerscelltypes, showCategory = 10)
-      
       #w_enr$hide()
-    }
-    
-    
+    })
   })
+  
+  # 
+  # 
+  # inFile4 = reactive({
+  #   req(input$file04)
+  #   data.frame(fread(input$file04$datapath), row.names = 1)
+  # })
+  # 
+  # output$viz4 = renderPlot({
+  #   
+  #   if(! is.null(inFile4()) ){
+  #     dat = as.matrix(inFile4())
+  #     
+  #     if(input$radio012 == "ICA-based"){
+  #       datemp = orient_funct(dat)
+  #       colnames(datemp) =  colnames(dat)
+  #       dat = datemp
+  #     }
+  #     if(input$select1 == "ALL"){
+  #       markerscelltypes = tapply(dbmarkers$geneSymbol,dbmarkers$cellIDcancer, cbind)
+  #     } else {
+  #       dbmarkers. = dbmarkers[dbmarkers$cancerType == input$select1,]
+  #       markerscelltypes = tapply(dbmarkers.$geneSymbol,dbmarkers.$cellID, cbind)
+  #     }
+  #     
+  #     #w_enr$show()
+  #     
+  #     enrichplot(dat, markerscelltypes, showCategory = 10)
+  #     
+  #     #w_enr$hide()
+  #   }
+  #   
+  #  
+  # })
   
   topgen = reactive({
     if (!is.null(inFile4())) {
@@ -1075,7 +1080,6 @@ server <- function(input, output, session) {
       write.csv(topgen(), file)
     }
   )
-  
 } # Closing Server.app     
 
 ################################################################################
