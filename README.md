@@ -30,7 +30,7 @@ git clone https://github.com/ashwini-kr-sharma/ShinyCompExplore.git
 docker run --rm -it -p 3838:3838 -v ~/ShinyCompExplore:/srv/shiny-server/ ashwinikrsharma/mrna_meth_decon
 
 # Or, for deployment in a Virtual Machine with a public IP
-# docker run -d -p 3838:3838 -v ~/ShinyCompExplore:/srv/shiny-server/ ashwinikrsharma/mrna_meth_decon
+# docker run -d -p 80:3838 -v ~/ShinyCompExplore:/srv/shiny-server/ ashwinikrsharma/mrna_meth_decon
 
 # Wait for few seconds for the shiny app to start
 
