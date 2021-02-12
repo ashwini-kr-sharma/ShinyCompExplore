@@ -728,7 +728,7 @@ server <- function(input, output, session) {
       type = "info"
     )
     
-    shinyjs::reset('file01')
+    #shinyjs::reset('file01')
     
   })
   
