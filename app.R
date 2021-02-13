@@ -990,7 +990,7 @@ observeEvent(c(algo_react(), canID_react(), expmat_react1()), {
 output$supexpmat <- DT::renderDT({
   datatable(
     sup_decon_out(),
-    extensions = 'Buttons',
+    #extensions = 'Buttons',
     class = "compact",
     options = list(
       dom = 'Bfrtip',
