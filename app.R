@@ -246,6 +246,13 @@ tabPanel(
     ),
   )),
   
+  h1("CIBERSORT"),
+  
+  tags$a(href = "https://cibersort.stanford.edu/", "Download CIBERSORT.R and LM22.txt here"), tags$br(), "Do note registration is required before use !!",
+  tags$h6("NOTE: Only for this workshop, a copy of these files has been made available along with the app"),
+  tags$b("PLEASE DO NOT SHARE THESE FILES!!"),
+  
+  
   h1("Optimal k selection "),
   p(
     "This module provides guidance in the determination of the number of putative cell types from omics data (e.g. Gene expression matrix)."
@@ -424,20 +431,21 @@ tabPanel(
   
   
   sidebarPanel(
-    textInput("CBR", label = h4("CIBERSORT.R file"), value = "~/ShinyCompExplore/data/CIBERSORT.R"),
-    tags$hr(),
-    textInput(
-      "LM22",
-      label = h4("LM22 gene signature file"),
-      value = "~/ShinyCompExplore/data/LM22.txt"
-    ),
-    tags$a(href = "https://cibersort.stanford.edu/", "Download CIBERSORT.R and LM22.txt here"), tags$br(), "Registration required.",
-    tags$h6(
-      "NOTE: Only for this workshop, a copy has made available at - /ShinyCompExplore/data/CIBERSORT.R"
-    ),
-    tags$b("PLEASE DO NOT SHARE THESE FILES!!"),
     
-    tags$hr(),
+    # textInput("CBR", label = h4("CIBERSORT.R file"), value = "~/ShinyCompExplore/data/CIBERSORT.R"),
+    # tags$hr(),
+    # textInput(
+    #   "LM22",
+    #   label = h4("LM22 gene signature file"),
+    #   value = "~/ShinyCompExplore/data/LM22.txt"
+    # ),
+    # tags$a(href = "https://cibersort.stanford.edu/", "Download CIBERSORT.R and LM22.txt here"), tags$br(), "Registration required.",
+    # tags$h6(
+    #   "NOTE: Only for this workshop, a copy has made available at - /ShinyCompExplore/data/CIBERSORT.R"
+    # ),
+    # tags$b("PLEASE DO NOT SHARE THESE FILES!!"),
+    # 
+    # tags$hr(),
     
     pickerInput(
       inputId = "select02",
@@ -917,8 +925,9 @@ observeEvent(c(algo_react(), canID_react(), expmat_react1()), {
   req(algo_react())
   req(canID_react())
   req(expmat_react1())
-  req(input$CBR)
-  req(input$LM22)
+  
+  #req(input$CBR)
+  #req(input$LM22)
   
   w$show() # show the waiter
   
@@ -931,8 +940,8 @@ observeEvent(c(algo_react(), canID_react(), expmat_react1()), {
            "xcell",
            "epic")
   
-  set_cibersort_binary(input$CBR)
-  set_cibersort_mat(input$LM22)
+  set_cibersort_binary("/srv/shiny-server/data/CIBERSORT.R")
+  set_cibersort_mat("/srv/shiny-server/data/LM22.txt")
   
   if (canID_react() == "None") {
     TIMER_type = NULL
